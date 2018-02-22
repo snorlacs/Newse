@@ -38,4 +38,12 @@ public class ArticleController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<Void> deleteArticleById(@PathVariable Long id) {
+        boolean isDeleted = articleRepository.delete(id);
+        HttpStatus httpStatus = isDeleted ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND;
+        return new ResponseEntity<>(httpStatus);
+    }
+
+
 }

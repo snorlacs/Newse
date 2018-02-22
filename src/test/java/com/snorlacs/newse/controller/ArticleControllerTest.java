@@ -41,8 +41,8 @@ public class ArticleControllerTest extends ApiIntegrationTest {
 
         ResultActions resultActions = post("/article", payload);
         resultActions.andExpect(status().isCreated());
-        assertArticleStructure(resultActions, article);
 
+        assertArticleStructure(resultActions, article);
         Assert.assertEquals(1, articleRepository.getCount());
     }
 
@@ -57,6 +57,7 @@ public class ArticleControllerTest extends ApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(injectedArticle.getId()));
 
+        assertReferenceLinks(resultActions, injectedArticle);
         assertArticleStructure(resultActions, injectedArticle);
 
     }
@@ -68,10 +69,32 @@ public class ArticleControllerTest extends ApiIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void testDeleteAnExistingArticleSuccessfully() throws Exception {
+        Article injectedArticle = createArticle();
+
+        delete("/article/{id}", injectedArticle.getId())
+                    .andExpect(status().isNoContent());
+
+    }
+
+    @Test
+    public void deletingAnInvalidArticleReturnNotFound() throws Exception {
+        delete("article/{id}", 1L).andExpect(status().isNotFound());
+    }
+
     private Article createArticle() {
         Article article = generateTestArticle();
         articleRepository.create(article);
         return article;
+    }
+
+    private void assertReferenceLinks(ResultActions resultActions, Article article) throws Exception {
+        String refLink = entityLinks.linkForSingleResource(article).toString();
+
+        resultActions.andExpect(jsonPath("$._links.self.href").value(refLink));
+        resultActions.andExpect(jsonPath("$._links.update.href").value(refLink));
+        resultActions.andExpect(jsonPath("$._links.delete.href").value(refLink));
     }
 
     private void assertArticleStructure(ResultActions resultActions, Article article) throws Exception {

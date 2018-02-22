@@ -33,4 +33,9 @@ public abstract class NonPersistentRepository<T extends Identifiable> {
                 .filter(article -> article.getId().equals(id))
                 .findFirst();
     }
+
+    public boolean delete(Long id) {
+        return articles.removeIf(article -> article.getId().equals(id));
+    }
+
 }
