@@ -4,15 +4,15 @@ import com.snorlacs.newse.domain.Identifiable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class NonPersistentRepository<T extends Identifiable> {
 
     @Autowired
     private IdGenerator idGenerator;
 
-    private List<T> articles = Collections.synchronizedList(new ArrayList<>());
+    private List<T> articles = new ArrayList<>();
 
     public T create(T article) {
         articles.add(article);
@@ -26,5 +26,11 @@ public abstract class NonPersistentRepository<T extends Identifiable> {
 
     public int getCount() {
         return articles.size();
+    }
+
+    public Optional<T> findById(Long id) {
+        return articles.stream()
+                .filter(article -> article.getId().equals(id))
+                .findFirst();
     }
 }

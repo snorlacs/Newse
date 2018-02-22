@@ -23,6 +23,10 @@ public class ApiIntegrationTest {
         );
     }
 
+    protected ResultActions get(String url, Object... urlVariables) throws Exception {
+        return mvc.perform(MockMvcRequestBuilders.get(url, urlVariables).accept(MediaType.APPLICATION_JSON));
+    }
+
     protected static String toJsonString(final Object obj) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(obj);

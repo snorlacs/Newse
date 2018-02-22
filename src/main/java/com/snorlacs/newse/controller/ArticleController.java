@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @ExposesResourceFor(Article.class)
 @RequestMapping(value = "/article", produces = "application/json")
@@ -26,4 +28,14 @@ public class ArticleController {
         Article createdArticle = articleRepository.create(article);
         return new ResponseEntity<>(articleResourceResolver.toResource(createdArticle), HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public ResponseEntity<ArticleResource> findOrderById(@PathVariable Long id) {
+        Optional<Article> article = articleRepository.findById(id);
+
+        return article
+                .map(article1 -> new ResponseEntity<>(articleResourceResolver.toResource(article1), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
 }
