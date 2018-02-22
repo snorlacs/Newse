@@ -30,7 +30,7 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<ArticleResource> findOrderById(@PathVariable Long id) {
+    public ResponseEntity<ArticleResource> findArticleById(@PathVariable Long id) {
         Optional<Article> article = articleRepository.findById(id);
 
         return article
@@ -39,10 +39,20 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteArticleById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
         boolean isDeleted = articleRepository.delete(id);
         HttpStatus httpStatus = isDeleted ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(httpStatus);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = "application/json")
+    public ResponseEntity<ArticleResource> updateArticle(@PathVariable Long id, @RequestBody Article updatedArticle) {
+        boolean updated = articleRepository.update(id, updatedArticle);
+        if (updated) {
+            return findArticleById(id);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 

@@ -12,30 +12,42 @@ public abstract class NonPersistentRepository<T extends Identifiable> {
     @Autowired
     private IdGenerator idGenerator;
 
-    private List<T> articles = new ArrayList<>();
+    private List<T> entities = new ArrayList<>();
 
-    public T create(T article) {
-        articles.add(article);
-        article.setId(idGenerator.getId());
-        return article;
+    public T create(T entity) {
+        entities.add(entity);
+        entity.setId(idGenerator.getId());
+        return entity;
     }
 
     public void clear() {
-        articles.clear();
+        entities.clear();
     }
 
     public int getCount() {
-        return articles.size();
+        return entities.size();
     }
 
     public Optional<T> findById(Long id) {
-        return articles.stream()
-                .filter(article -> article.getId().equals(id))
+        return entities.stream()
+                .filter(entity -> entity.getId().equals(id))
                 .findFirst();
     }
 
     public boolean delete(Long id) {
-        return articles.removeIf(article -> article.getId().equals(id));
+        return entities.removeIf(entity -> entity.getId().equals(id));
     }
+
+    public boolean update(Long id, T updatedEntity) {
+        if (updatedEntity == null) {
+            return false;
+        } else {
+            Optional<T> entity = findById(id);
+            entity.ifPresent(originalArticle -> updateIfExists(originalArticle, updatedEntity));
+            return entity.isPresent();
+        }
+    }
+
+    protected abstract void updateIfExists(T originalArticle, T updatedArticle);
 
 }

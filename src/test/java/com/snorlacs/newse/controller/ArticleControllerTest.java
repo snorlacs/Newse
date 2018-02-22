@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static utils.TestUtils.generateTestArticle;
+import static utils.TestUtils.generateUpdatedArticle;
 
 
 @RunWith(SpringRunner.class)
@@ -49,16 +50,16 @@ public class ArticleControllerTest extends ApiIntegrationTest {
 
     @Test
     public void testGetAnArticleGivesCorrectResponse() throws Exception {
-        Article injectedArticle = createArticle();
+        Article newArticle = createArticle();
 
-        ResultActions resultActions = get("/article/{id}", injectedArticle.getId());
+        ResultActions resultActions = get("/article/{id}", newArticle.getId());
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(injectedArticle.getId()));
+                .andExpect(jsonPath("$.id").value(newArticle.getId()));
 
-        assertReferenceLinks(resultActions, injectedArticle);
-        assertArticleStructure(resultActions, injectedArticle);
+        assertReferenceLinks(resultActions, newArticle);
+        assertArticleStructure(resultActions, newArticle);
 
     }
 
@@ -71,17 +72,33 @@ public class ArticleControllerTest extends ApiIntegrationTest {
 
     @Test
     public void testDeleteAnExistingArticleSuccessfully() throws Exception {
-        Article injectedArticle = createArticle();
+        Article newArticle = createArticle();
 
-        delete("/article/{id}", injectedArticle.getId())
-                    .andExpect(status().isNoContent());
+        delete("/article/{id}", newArticle.getId())
+                .andExpect(status().isNoContent());
 
     }
 
     @Test
     public void deletingAnInvalidArticleReturnNotFound() throws Exception {
-        delete("article/{id}", 1L).andExpect(status().isNotFound());
+        delete("/article/{id}", 1L).andExpect(status().isNotFound());
     }
+
+    @Test
+    public void testUpdateAnArticleSuccessfully() throws Exception {
+        Article originalArticle = createArticle();
+        Article updatedArticle = generateUpdatedArticle(originalArticle);
+
+        ResultActions resultActions = put("/article/{id}", updatedArticle, String.valueOf(originalArticle.getId()));
+        resultActions.andExpect(status().isOk());
+        assertArticleStructure(resultActions, updatedArticle);
+    }
+
+    @Test
+    public void updatingAnInvalidArticleReturnsNotFound() throws Exception {
+        put("/article/{id}", generateTestArticle(), 999L).andExpect(status().isNotFound());
+    }
+
 
     private Article createArticle() {
         Article article = generateTestArticle();

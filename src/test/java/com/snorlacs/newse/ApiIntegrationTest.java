@@ -31,6 +31,14 @@ public class ApiIntegrationTest {
         return mvc.perform(MockMvcRequestBuilders.delete(url, urlVariables).accept(MediaType.APPLICATION_JSON));
     }
 
+    protected ResultActions put(String url, Object content, Object... urlVariables) throws Exception {
+        return mvc.perform(MockMvcRequestBuilders.put(url, urlVariables)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJsonString(content))
+        );
+    }
+
     protected static String toJsonString(final Object obj) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(obj);

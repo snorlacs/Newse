@@ -47,7 +47,7 @@ public class ArticleRepositoryTest {
 
         boolean isDeleted = repository.delete(article.getId());
         Assert.assertTrue(isDeleted);
-        Assert.assertEquals( 0, repository.getCount());
+        Assert.assertEquals(0, repository.getCount());
     }
 
     @Test
@@ -56,4 +56,22 @@ public class ArticleRepositoryTest {
         Assert.assertFalse(isDeleted);
     }
 
+    @Test
+    public void updateArticleIfArticleIsPresentShouldReturnTrue() throws Exception {
+        when(idGenerator.getId()).thenReturn(1L);
+
+        Article article = repository.create(TestUtils.generateTestArticle());
+
+        Assert.assertTrue(repository.update(article.getId(), TestUtils.generateUpdatedArticle(article)));
+    }
+
+    @Test
+    public void updateArticleIfArticleIsAbsentShouldReturnFalse() throws Exception {
+        Assert.assertFalse(repository.update(2L, TestUtils.generateTestArticle()));
+    }
+
+    @Test
+    public void updateArticleReturnsFalseForUpdatingArticleToNull() throws Exception {
+        Assert.assertFalse(repository.update(2L, null));
+    }
 }
