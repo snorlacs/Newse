@@ -8,8 +8,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.EntityLinks;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -25,6 +27,7 @@ import static utils.TestUtils.generateUpdatedArticle;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@TestPropertySource("classpath:../resources/application.properties")
 public class ArticleControllerTest extends ApiIntegrationTest {
 
     @Autowired
@@ -33,8 +36,17 @@ public class ArticleControllerTest extends ApiIntegrationTest {
     @Autowired
     private EntityLinks entityLinks;
 
+    @Value("${editor.username}")
+    private String username;
+
+    @Value("${editor.password}")
+    private String password;
+
+    private String authorizationSecret;
+
     @Before
     public void setUp() throws Exception {
+        authorizationSecret = username+":"+password;
         articleRepository.clear();
     }
 
@@ -43,7 +55,8 @@ public class ArticleControllerTest extends ApiIntegrationTest {
         Article article = generateTestArticle();
         String payload = toJsonString(article);
 
-        ResultActions resultActions = post("/article", payload);
+
+        ResultActions resultActions = post("/article", payload, authorizationSecret);
         resultActions.andExpect(status().isCreated());
 
         assertArticleStructure(resultActions, article);
@@ -77,14 +90,14 @@ public class ArticleControllerTest extends ApiIntegrationTest {
     public void testDeleteAnExistingArticleSuccessfully() throws Exception {
         Article newArticle = createArticle();
 
-        delete("/article/{id}", newArticle.getId())
+        delete("/article/{id}", authorizationSecret, newArticle.getId())
                 .andExpect(status().isNoContent());
 
     }
 
     @Test
     public void deletingAnInvalidArticleReturnNotFound() throws Exception {
-        delete("/article/{id}", 1L).andExpect(status().isNotFound());
+        delete("/article/{id}", authorizationSecret, 1L).andExpect(status().isNotFound());
     }
 
     @Test
@@ -92,14 +105,14 @@ public class ArticleControllerTest extends ApiIntegrationTest {
         Article originalArticle = createArticle();
         Article updatedArticle = generateUpdatedArticle(originalArticle);
 
-        ResultActions resultActions = put("/article/{id}", updatedArticle, String.valueOf(originalArticle.getId()));
+        ResultActions resultActions = put("/article/{id}", updatedArticle, authorizationSecret, String.valueOf(originalArticle.getId()));
         resultActions.andExpect(status().isOk());
         assertArticleStructure(resultActions, updatedArticle);
     }
 
     @Test
     public void updatingAnInvalidArticleReturnsNotFound() throws Exception {
-        put("/article/{id}", generateTestArticle(), 999L).andExpect(status().isNotFound());
+        put("/article/{id}", generateTestArticle(), authorizationSecret, 999L).andExpect(status().isNotFound());
     }
 
     @Test

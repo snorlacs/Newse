@@ -1,7 +1,6 @@
 package com.snorlacs.newse.domain;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Date;
@@ -36,7 +35,7 @@ public class Article implements Identifiable {
         return text;
     }
 
-    @JsonSerialize(using=JsonDateSerializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     public Date getPublishedOn() {
         return publishedOn;
     }

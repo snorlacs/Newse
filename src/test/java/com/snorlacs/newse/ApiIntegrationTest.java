@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.Base64Utils;
 
 
 @AutoConfigureMockMvc
@@ -16,8 +18,10 @@ public class ApiIntegrationTest {
     @Autowired
     private MockMvc mvc;
 
-    protected ResultActions post(String url, String content, Object... urlVariables) throws Exception {
+    protected ResultActions post(String url, String content, String authorizationSecret, Object... urlVariables) throws Exception {
         return mvc.perform(MockMvcRequestBuilders.post(url, urlVariables)
+                .header(HttpHeaders.AUTHORIZATION,
+                        "Basic " + Base64Utils.encodeToString(authorizationSecret.getBytes()))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content)
@@ -28,12 +32,15 @@ public class ApiIntegrationTest {
         return mvc.perform(MockMvcRequestBuilders.get(url, urlVariables).accept(MediaType.APPLICATION_JSON));
     }
 
-    protected ResultActions delete(String url, Object... urlVariables) throws Exception {
-        return mvc.perform(MockMvcRequestBuilders.delete(url, urlVariables).accept(MediaType.APPLICATION_JSON));
+    protected ResultActions delete(String url, String authorizationSecret, Object... urlVariables) throws Exception {
+        return mvc.perform(MockMvcRequestBuilders.delete(url, urlVariables).header(HttpHeaders.AUTHORIZATION,
+                "Basic " + Base64Utils.encodeToString(authorizationSecret.getBytes())).accept(MediaType.APPLICATION_JSON));
     }
 
-    protected ResultActions put(String url, Object content, Object... urlVariables) throws Exception {
+    protected ResultActions put(String url, Object content, String authorizationSecret, Object... urlVariables) throws Exception {
         return mvc.perform(MockMvcRequestBuilders.put(url, urlVariables)
+                .header(HttpHeaders.AUTHORIZATION,
+                        "Basic " + Base64Utils.encodeToString(authorizationSecret.getBytes()))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJsonString(content))
