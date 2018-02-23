@@ -5,14 +5,18 @@ import com.snorlacs.newse.repository.ArticleRepository;
 import com.snorlacs.newse.resource.ArticleResource;
 import com.snorlacs.newse.resource.ArticleResourceResolver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static com.snorlacs.newse.domain.JsonDateSerializer.DATE_FORMAT;
 
 @RestController
 @ExposesResourceFor(Article.class)
@@ -62,19 +66,25 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "/keyword/{keyword}", method = RequestMethod.GET)
-    public  ResponseEntity<Collection<ArticleResource>> findArticleByKeyword(@PathVariable String keyword) {
+    public ResponseEntity<Collection<ArticleResource>> findArticleByKeyword(@PathVariable String keyword) {
         List<Article> articles = articleRepository.findByKeyword(keyword);
         return getCollectionResponseEntity(articles);
     }
 
     @RequestMapping(value = "/author/{author}", method = RequestMethod.GET)
-    public  ResponseEntity<Collection<ArticleResource>> findArticleByAuthorName(@PathVariable String author) {
+    public ResponseEntity<Collection<ArticleResource>> findArticleByAuthorName(@PathVariable String author) {
         List<Article> articles = articleRepository.findByAuthorName(author);
         return getCollectionResponseEntity(articles);
     }
 
+    @RequestMapping(value = "/published", method = RequestMethod.GET)
+    public ResponseEntity<Collection<ArticleResource>> findArticleInPeriod(@RequestParam("from") @DateTimeFormat(pattern = DATE_FORMAT) Date from, @RequestParam("to") @DateTimeFormat(pattern = DATE_FORMAT) Date to) {
+        List<Article> articles = articleRepository.findByPublishedOn(from, to);
+        return getCollectionResponseEntity(articles);
+    }
+
     private ResponseEntity<Collection<ArticleResource>> getCollectionResponseEntity(List<Article> articles) {
-        if(articles.isEmpty()) {
+        if (articles.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(articleResourceResolver.toResourceCollection(articles), HttpStatus.OK);

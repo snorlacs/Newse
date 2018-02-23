@@ -1,13 +1,17 @@
 package com.snorlacs.newse.resource;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.snorlacs.newse.domain.Article;
 import com.snorlacs.newse.domain.Author;
+import com.snorlacs.newse.domain.JsonDateSerializer;
 import org.springframework.hateoas.ResourceSupport;
 
 import java.util.Date;
 import java.util.List;
 
+@JsonAutoDetect
 public class ArticleResource extends ResourceSupport {
 
     private final long id;
@@ -46,6 +50,7 @@ public class ArticleResource extends ResourceSupport {
         return text;
     }
 
+    @JsonSerialize(using=JsonDateSerializer.class)
     public Date getPublishedOn() {
         return publishedOn;
     }

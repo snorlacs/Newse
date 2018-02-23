@@ -1,6 +1,9 @@
 package com.snorlacs.newse.repository;
 
 import com.snorlacs.newse.domain.Article;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,9 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import utils.TestUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.Mockito.when;
 
@@ -25,11 +26,13 @@ public class ArticleRepositoryTest {
 
     @InjectMocks
     private ArticleRepository repository;
+    private Calendar cal;
 
     @Before
     public void setUp() throws Exception {
         repository.clear();
     }
+
 
     @Test
     public void testFindById() throws Exception {
@@ -106,4 +109,29 @@ public class ArticleRepositoryTest {
     public void findArticleByAuthorReturnsEmptyListIfNoArticlesAreMatched() throws Exception {
         Assert.assertEquals(Collections.emptyList(), repository.findByAuthorName("batman"));
     }
+
+    @Test
+    public void findArticleByPublishDateReturnsAllArticles() throws Exception {
+        when(idGenerator.getId()).thenReturn(1L).thenReturn(2L);
+
+        Article article1 = repository.create(TestUtils.generateTestArticle());
+        Article article2 = repository.create(TestUtils.generateTestArticle());
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+
+        Assert.assertEquals(Arrays.asList(article1, article2), repository.findByPublishedOn(cal.getTime(), article2.getPublishedOn()));
+    }
+
+    @Test
+    public void findArticleByPublishDateReturnsArticleCreateTodayForPeriodFromNowToNextTwoDays() throws Exception {
+        when(idGenerator.getId()).thenReturn(1L).thenReturn(2L);
+
+        Article article1 = repository.create(TestUtils.generateTestArticle());
+        Article article2 = repository.create(TestUtils.generateTestArticle());
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, 2);
+
+        Assert.assertEquals(Arrays.asList(article1, article2), repository.findByPublishedOn(article1.getPublishedOn(), cal.getTime()));
+    }
+
 }

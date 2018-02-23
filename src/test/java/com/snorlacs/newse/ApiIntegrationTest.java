@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+
 @AutoConfigureMockMvc
 public class ApiIntegrationTest {
 
@@ -26,7 +27,6 @@ public class ApiIntegrationTest {
     protected ResultActions get(String url, Object... urlVariables) throws Exception {
         return mvc.perform(MockMvcRequestBuilders.get(url, urlVariables).accept(MediaType.APPLICATION_JSON));
     }
-
 
     protected ResultActions delete(String url, Object... urlVariables) throws Exception {
         return mvc.perform(MockMvcRequestBuilders.delete(url, urlVariables).accept(MediaType.APPLICATION_JSON));

@@ -13,6 +13,9 @@ import org.springframework.hateoas.EntityLinks;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.text.SimpleDateFormat;
+
+import static com.snorlacs.newse.domain.JsonDateSerializer.DATE_FORMAT;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -143,6 +146,21 @@ public class ArticleControllerTest extends ApiIntegrationTest {
         resultActions.andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void getArticlesWithinAPeriodReturnNotFoundWhenThereIsNoMatch() throws Exception {
+        get("/article/published?from=2019-02-23T19:56:50.563+0530&to=2019-02-23T19:56:50.563+0530").andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getArticlesWithinAPeriodReturnStatusOkAndTheArticles() throws Exception {
+        Article article1 = createArticle();
+        Article article2 = createArticle();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        get("/article/published?from=" + dateFormat.format(article1.getPublishedOn()) + "&to=" + dateFormat.format(article2.getPublishedOn()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$",hasSize(2)));
+    }
+
     private Article createArticle() {
         Article article = generateTestArticle();
         articleRepository.create(article);
@@ -163,7 +181,7 @@ public class ArticleControllerTest extends ApiIntegrationTest {
                 .andExpect(jsonPath("$.header").value(article.getHeader()))
                 .andExpect(jsonPath("$.shortDescription").value(article.getShortDescription()))
                 .andExpect(jsonPath("$.text").value(article.getText()))
-                .andExpect(jsonPath("$.publishedOn").value(article.getPublishedOn()))
+                .andExpect(jsonPath("$.publishedOn").value(new SimpleDateFormat(DATE_FORMAT).format(article.getPublishedOn())))
                 .andExpect(jsonPath("$.authors", hasSize(article.getAuthors().size())))
                 .andExpect(jsonPath("$.authors[0].name").value(article.getAuthors().get(0).getName()))
                 .andExpect(jsonPath("$.keywords", hasSize(article.getKeywords().size())))
