@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -17,11 +19,15 @@ import java.util.Optional;
 @RequestMapping(value = "/article", produces = "application/json")
 public class ArticleController {
 
-    @Autowired
-    private ArticleRepository articleRepository;
+    private final ArticleRepository articleRepository;
+
+    private final ArticleResourceResolver articleResourceResolver;
 
     @Autowired
-    private ArticleResourceResolver articleResourceResolver;
+    public ArticleController(ArticleRepository articleRepository, ArticleResourceResolver articleResourceResolver) {
+        this.articleRepository = articleRepository;
+        this.articleResourceResolver = articleResourceResolver;
+    }
 
     @RequestMapping(method = RequestMethod.POST, consumes = "application/json")
     public ResponseEntity<ArticleResource> createArticle(@RequestBody Article article) {
@@ -31,7 +37,7 @@ public class ArticleController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<ArticleResource> findArticleById(@PathVariable Long id) {
-        Optional<Article> article = articleRepository.findById(id);
+        Optional<Article> article = articleRepository.findOne(id);
 
         return article
                 .map(article1 -> new ResponseEntity<>(articleResourceResolver.toResource(article1), HttpStatus.OK))
@@ -55,5 +61,23 @@ public class ArticleController {
         }
     }
 
+    @RequestMapping(value = "/keyword/{keyword}", method = RequestMethod.GET)
+    public  ResponseEntity<Collection<ArticleResource>> findArticleByKeyword(@PathVariable String keyword) {
+        List<Article> articles = articleRepository.findByKeyword(keyword);
+        return getCollectionResponseEntity(articles);
+    }
 
+    @RequestMapping(value = "/author/{author}", method = RequestMethod.GET)
+    public  ResponseEntity<Collection<ArticleResource>> findArticleByAuthorName(@PathVariable String author) {
+        List<Article> articles = articleRepository.findByAuthorName(author);
+        return getCollectionResponseEntity(articles);
+    }
+
+    private ResponseEntity<Collection<ArticleResource>> getCollectionResponseEntity(List<Article> articles) {
+        if(articles.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(articleResourceResolver.toResourceCollection(articles), HttpStatus.OK);
+        }
+    }
 }

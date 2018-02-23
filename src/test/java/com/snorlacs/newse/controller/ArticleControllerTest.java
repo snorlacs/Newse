@@ -99,6 +99,49 @@ public class ArticleControllerTest extends ApiIntegrationTest {
         put("/article/{id}", generateTestArticle(), 999L).andExpect(status().isNotFound());
     }
 
+    @Test
+    public void getArticlesByKeywordReturnOkStatusWithMatchedArticles() throws Exception {
+        Article article1 = createArticle();
+        Article article2 = createArticle();
+
+        ResultActions resultActions = get("/article/keyword/{keyword}", article1.getKeywords().get(0));
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void getArticlesByKeywordReturnNotFoundWhenThereIsNoMatch() throws Exception {
+        ResultActions resultActions = get("/article/keyword/{keyword}", "blah");
+        resultActions.andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getArticlesByKeywordReturnBadRequestWhenEmptyKeywordIsPassed() throws Exception {
+        ResultActions resultActions = get("/article/keyword/{keyword}", "");
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getArticlesByAuthorNameReturnsOkStatusWithMatchedArticles() throws Exception {
+        Article article1 = createArticle();
+        Article article2 = createArticle();
+
+        ResultActions resultActions = get("/article/author/{author}", article1.getAuthors().get(0).getName());
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void getArticlesByAuthorNameReturnsNotFoundWhenThereIsNoMatch() throws Exception {
+        ResultActions resultActions = get("/article/author/{author}", "blah");
+        resultActions.andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getArticlesByAuthorNameReturnsBadRequestWhenEmptyAuthorIsPased() throws Exception {
+        ResultActions resultActions = get("/article/author/{author}", "");
+        resultActions.andExpect(status().isBadRequest());
+    }
 
     private Article createArticle() {
         Article article = generateTestArticle();

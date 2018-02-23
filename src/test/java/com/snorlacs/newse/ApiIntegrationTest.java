@@ -27,6 +27,7 @@ public class ApiIntegrationTest {
         return mvc.perform(MockMvcRequestBuilders.get(url, urlVariables).accept(MediaType.APPLICATION_JSON));
     }
 
+
     protected ResultActions delete(String url, Object... urlVariables) throws Exception {
         return mvc.perform(MockMvcRequestBuilders.delete(url, urlVariables).accept(MediaType.APPLICATION_JSON));
     }

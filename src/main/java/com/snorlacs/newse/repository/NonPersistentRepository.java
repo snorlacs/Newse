@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public abstract class NonPersistentRepository<T extends Identifiable> {
 
@@ -28,7 +30,7 @@ public abstract class NonPersistentRepository<T extends Identifiable> {
         return entities.size();
     }
 
-    public Optional<T> findById(Long id) {
+    public Optional<T> findOne(Long id) {
         return entities.stream()
                 .filter(entity -> entity.getId().equals(id))
                 .findFirst();
@@ -42,10 +44,14 @@ public abstract class NonPersistentRepository<T extends Identifiable> {
         if (updatedEntity == null) {
             return false;
         } else {
-            Optional<T> entity = findById(id);
+            Optional<T> entity = findOne(id);
             entity.ifPresent(originalArticle -> updateIfExists(originalArticle, updatedEntity));
             return entity.isPresent();
         }
+    }
+
+    public List<T> findByField(Predicate<T> predicate) {
+        return entities.stream().filter(predicate).collect(Collectors.toList());
     }
 
     protected abstract void updateIfExists(T originalArticle, T updatedArticle);

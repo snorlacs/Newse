@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import utils.TestUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -35,7 +37,7 @@ public class ArticleRepositoryTest {
 
         Article article = repository.create(TestUtils.generateTestArticle());
 
-        Optional<Article> foundArticle = repository.findById(article.getId());
+        Optional<Article> foundArticle = repository.findOne(article.getId());
         Assert.assertTrue(foundArticle.isPresent());
     }
 
@@ -73,5 +75,35 @@ public class ArticleRepositoryTest {
     @Test
     public void updateArticleReturnsFalseForUpdatingArticleToNull() throws Exception {
         Assert.assertFalse(repository.update(2L, null));
+    }
+
+    @Test
+    public void findArticleByKeyWordReturnsTheMatchedArticles() throws Exception {
+        when(idGenerator.getId()).thenReturn(1L).thenReturn(2L);
+
+        Article article1 = repository.create(TestUtils.generateTestArticle());
+        Article article2 = repository.create(TestUtils.generateTestArticle());
+
+        Assert.assertEquals(Arrays.asList(article1, article2),repository.findByKeyword(article1.getKeywords().get(0)));
+    }
+
+    @Test
+    public void findArticlesByKeyWordReturnsEmptyListIfNoArticlesAreMatched() throws Exception {
+        Assert.assertEquals(Collections.emptyList(), repository.findByKeyword("blah"));
+    }
+
+    @Test
+    public void findArticleByAuthorReturnsTHeMatchedArticles() throws Exception {
+        when(idGenerator.getId()).thenReturn(1L).thenReturn(2L);
+
+        Article article1 = repository.create(TestUtils.generateTestArticle());
+        Article article2 = repository.create(TestUtils.generateTestArticle());
+
+        Assert.assertEquals(Arrays.asList(article1, article2), repository.findByAuthorName(article1.getAuthors().get(0).getName()));
+    }
+
+    @Test
+    public void findArticleByAuthorReturnsEmptyListIfNoArticlesAreMatched() throws Exception {
+        Assert.assertEquals(Collections.emptyList(), repository.findByAuthorName("batman"));
     }
 }
