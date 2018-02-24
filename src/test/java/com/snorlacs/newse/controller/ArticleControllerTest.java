@@ -27,7 +27,7 @@ import static utils.TestUtils.generateUpdatedArticle;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@TestPropertySource("classpath:../resources/application.properties")
+@TestPropertySource("classpath:application.properties")
 public class ArticleControllerTest extends ApiIntegrationTest {
 
     @Autowired

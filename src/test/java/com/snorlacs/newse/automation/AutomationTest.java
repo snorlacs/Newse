@@ -7,7 +7,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src/test/resources/automation")
-
 @WebAppConfiguration
 public class AutomationTest {
 }

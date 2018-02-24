@@ -1,9 +1,6 @@
 package com.snorlacs.newse.repository;
 
 import com.snorlacs.newse.domain.Article;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +10,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import utils.TestUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 

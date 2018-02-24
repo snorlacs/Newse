@@ -23,7 +23,7 @@ import java.io.IOException;
 @WebAppConfiguration
 @ContextConfiguration(classes = Application.class)
 @AutoConfigureMockMvc
-@TestPropertySource("classpath:../resources/application.properties")
+@TestPropertySource("classpath:application.properties")
 public abstract class StepsUtil {
 
     private static ObjectMapper mapper = new ObjectMapper();
