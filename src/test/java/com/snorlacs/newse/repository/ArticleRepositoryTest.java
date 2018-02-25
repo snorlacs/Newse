@@ -87,12 +87,12 @@ public class ArticleRepositoryTest {
         Article article1 = repository.create(TestUtils.generateTestArticle());
         Article article2 = repository.create(TestUtils.generateTestArticle());
 
-        Assert.assertEquals(Arrays.asList(article1, article2),repository.findByKeyword(article1.getKeywords().get(0)));
+        Assert.assertEquals(Arrays.asList(article1, article2), repository.filter(article1.getKeywords().get(0), null, null, null));
     }
 
     @Test
     public void findArticlesByKeyWordReturnsEmptyListIfNoArticlesAreMatched() throws Exception {
-        Assert.assertEquals(Collections.emptyList(), repository.findByKeyword("blah"));
+        Assert.assertEquals(Collections.emptyList(), repository.filter("blah", null, null, null));
     }
 
     @Test
@@ -102,16 +102,16 @@ public class ArticleRepositoryTest {
         Article article1 = repository.create(TestUtils.generateTestArticle());
         Article article2 = repository.create(TestUtils.generateTestArticle());
 
-        Assert.assertEquals(Arrays.asList(article1, article2), repository.findByAuthorName(article1.getAuthors().get(0).getName()));
+        Assert.assertEquals(Arrays.asList(article1, article2), repository.filter(null, article1.getAuthors().get(0).getName(), null, null));
     }
 
     @Test
-    public void findArticleByAuthorReturnsEmptyListIfNoArticlesAreMatched() throws Exception {
-        Assert.assertEquals(Collections.emptyList(), repository.findByAuthorName("batman"));
+    public void filterArticleByAuthorReturnsEmptyListIfNoArticlesAreMatched() throws Exception {
+        Assert.assertEquals(Collections.emptyList(), repository.filter(null, "batman", null, null));
     }
 
     @Test
-    public void findArticleByPublishDateReturnsAllArticles() throws Exception {
+    public void filterArticleByToDateReturnsAllArticles() throws Exception {
         when(idGenerator.getId()).thenReturn(1L).thenReturn(2L);
 
         Article article1 = repository.create(TestUtils.generateTestArticle());
@@ -119,11 +119,23 @@ public class ArticleRepositoryTest {
         cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
 
-        Assert.assertEquals(Arrays.asList(article1, article2), repository.findByPublishedOn(cal.getTime(), article2.getPublishedOn()));
+        Assert.assertEquals(Arrays.asList(article1, article2), repository.filter(null, null, null, article2.getPublishedOn()));
     }
 
     @Test
-    public void findArticleByPublishDateReturnsArticleCreateTodayForPeriodFromNowToNextTwoDays() throws Exception {
+    public void filterArticleByFromDateReturnsAllArticles() throws Exception {
+        when(idGenerator.getId()).thenReturn(1L);
+
+        Article article1 = repository.create(TestUtils.generateTestArticle());
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+
+        Assert.assertEquals(Collections.singletonList(article1), repository.filter(null, null, cal.getTime(), null));
+
+    }
+
+    @Test
+    public void filterArticleForPeriodFromNowToNextTwoDaysReturnsAllArticleCreatedFromNow() throws Exception {
         when(idGenerator.getId()).thenReturn(1L).thenReturn(2L);
 
         Article article1 = repository.create(TestUtils.generateTestArticle());
@@ -131,7 +143,7 @@ public class ArticleRepositoryTest {
         cal = Calendar.getInstance();
         cal.add(Calendar.DATE, 2);
 
-        Assert.assertEquals(Arrays.asList(article1, article2), repository.findByPublishedOn(article1.getPublishedOn(), cal.getTime()));
+        Assert.assertEquals(Arrays.asList(article1, article2), repository.filter(null, null, article1.getPublishedOn(), cal.getTime()));
     }
 
 }

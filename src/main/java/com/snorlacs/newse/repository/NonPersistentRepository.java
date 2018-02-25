@@ -50,7 +50,7 @@ public abstract class NonPersistentRepository<T extends Identifiable> {
         }
     }
 
-    public List<T> findByField(Predicate<T> predicate) {
+    public List<T> findByPredicate(Predicate<T> predicate) {
         return entities.stream().filter(predicate).collect(Collectors.toList());
     }
 

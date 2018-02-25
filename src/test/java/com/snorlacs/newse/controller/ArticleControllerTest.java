@@ -46,7 +46,7 @@ public class ArticleControllerTest extends ApiIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        authorizationSecret = username+":"+password;
+        authorizationSecret = username + ":" + password;
         articleRepository.clear();
     }
 
@@ -116,63 +116,66 @@ public class ArticleControllerTest extends ApiIntegrationTest {
     }
 
     @Test
-    public void getArticlesByKeywordReturnOkStatusWithMatchedArticles() throws Exception {
+    public void getArticlesWithinAPeriodReturnsTheMatchedArticles() throws Exception {
         Article article1 = createArticle();
         Article article2 = createArticle();
-
-        ResultActions resultActions = get("/article/keyword/{keyword}", article1.getKeywords().get(0));
-        resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$", hasSize(2)));
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        get("/articles?from=" + dateFormat.format(article1.getPublishedOn()) + "&to=" + dateFormat.format(article2.getPublishedOn()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
-    public void getArticlesByKeywordReturnNotFoundWhenThereIsNoMatch() throws Exception {
-        ResultActions resultActions = get("/article/keyword/{keyword}", "blah");
-        resultActions.andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void getArticlesByKeywordReturnBadRequestWhenEmptyKeywordIsPassed() throws Exception {
-        ResultActions resultActions = get("/article/keyword/{keyword}", "");
-        resultActions.andExpect(status().isBadRequest());
+    public void getArticlesWithoutQueryParamsReturnAllArticles() throws Exception {
+        createArticle();
+        createArticle();
+        get("/articles")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
     public void getArticlesByAuthorNameReturnsOkStatusWithMatchedArticles() throws Exception {
         Article article1 = createArticle();
-        Article article2 = createArticle();
+        Article article2 = generateUpdatedArticle(generateTestArticle());
+        articleRepository.create(article2);
 
-        ResultActions resultActions = get("/article/author/{author}", article1.getAuthors().get(0).getName());
+        ResultActions resultActions = get("/articles?author=" + article1.getAuthors().get(0).getName());
         resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$", hasSize(2)));
+        resultActions.andExpect(jsonPath("$", hasSize(1)));
     }
 
     @Test
-    public void getArticlesByAuthorNameReturnsNotFoundWhenThereIsNoMatch() throws Exception {
-        ResultActions resultActions = get("/article/author/{author}", "blah");
+    public void getArticlesByKeywordReturnOkStatusWithMatchedArticles() throws Exception {
+        Article article1 = createArticle();
+        Article article2 = generateUpdatedArticle(generateTestArticle());
+        articleRepository.create(article2);
+
+        ResultActions resultActions = get("/articles?keyword=" + article1.getKeywords().get(0));
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    public void getArticlesReturnNotFoundIfThereIsNoMatch() throws Exception {
+
+        ResultActions resultActions = get("/articles?keyword=blah");
         resultActions.andExpect(status().isNotFound());
     }
 
     @Test
-    public void getArticlesByAuthorNameReturnsBadRequestWhenEmptyAuthorIsPased() throws Exception {
-        ResultActions resultActions = get("/article/author/{author}", "");
-        resultActions.andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void getArticlesWithinAPeriodReturnNotFoundWhenThereIsNoMatch() throws Exception {
-        get("/article/published?from=2019-02-23T19:56:50.563+0530&to=2019-02-23T19:56:50.563+0530").andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void getArticlesWithinAPeriodReturnStatusOkAndTheArticles() throws Exception {
+    public void getArticlesByMultipleCriteriaReturnMatchedArticles() throws Exception {
         Article article1 = createArticle();
-        Article article2 = createArticle();
+        Article article2 = generateUpdatedArticle(generateTestArticle());
+        articleRepository.create(article2);
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        get("/article/published?from=" + dateFormat.format(article1.getPublishedOn()) + "&to=" + dateFormat.format(article2.getPublishedOn()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$",hasSize(2)));
+        ResultActions resultActions = get("/articles?keyword=" + article1.getKeywords().get(0) +
+                "&author=" + article1.getAuthors().get(0).getName() +
+                "&from=" + dateFormat.format(article1.getPublishedOn()));
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$", hasSize(1)));
     }
+
 
     private Article createArticle() {
         Article article = generateTestArticle();

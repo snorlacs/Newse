@@ -20,7 +20,7 @@ import static com.snorlacs.newse.domain.JsonDateSerializer.DATE_FORMAT;
 
 @RestController
 @ExposesResourceFor(Article.class)
-@RequestMapping(value = "/article", produces = "application/json")
+@RequestMapping(produces = "application/json")
 public class ArticleController {
 
     private final ArticleRepository articleRepository;
@@ -33,13 +33,13 @@ public class ArticleController {
         this.articleResourceResolver = articleResourceResolver;
     }
 
-    @RequestMapping(method = RequestMethod.POST, consumes = "application/json")
+    @RequestMapping(value = "/article", method = RequestMethod.POST, consumes = "application/json")
     public ResponseEntity<ArticleResource> createArticle(@RequestBody Article article) {
         Article createdArticle = articleRepository.create(article);
         return new ResponseEntity<>(articleResourceResolver.toResource(createdArticle), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/article/{id}", method = RequestMethod.GET)
     public ResponseEntity<ArticleResource> findArticleById(@PathVariable Long id) {
         Optional<Article> article = articleRepository.findOne(id);
 
@@ -48,14 +48,14 @@ public class ArticleController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/article/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
         boolean isDeleted = articleRepository.delete(id);
         HttpStatus httpStatus = isDeleted ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(httpStatus);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = "application/json")
+    @RequestMapping(value = "/article/{id}", method = RequestMethod.PUT, consumes = "application/json")
     public ResponseEntity<ArticleResource> updateArticle(@PathVariable Long id, @RequestBody Article updatedArticle) {
         boolean updated = articleRepository.update(id, updatedArticle);
         if (updated) {
@@ -65,21 +65,13 @@ public class ArticleController {
         }
     }
 
-    @RequestMapping(value = "/keyword/{keyword}", method = RequestMethod.GET)
-    public ResponseEntity<Collection<ArticleResource>> findArticleByKeyword(@PathVariable String keyword) {
-        List<Article> articles = articleRepository.findByKeyword(keyword);
-        return getCollectionResponseEntity(articles);
-    }
+    @RequestMapping(value = "/articles", method = RequestMethod.GET)
+    public ResponseEntity<Collection<ArticleResource>> filterArticles(@RequestParam(value = "keyword", required = false) String keyword,
+                                                                      @RequestParam(value = "author", required = false) String author,
+                                                                      @RequestParam(value = "from", required = false) @DateTimeFormat(pattern = DATE_FORMAT) Date from,
+                                                                      @RequestParam(value = "to", required = false) @DateTimeFormat(pattern = DATE_FORMAT) Date to) {
 
-    @RequestMapping(value = "/author/{author}", method = RequestMethod.GET)
-    public ResponseEntity<Collection<ArticleResource>> findArticleByAuthorName(@PathVariable String author) {
-        List<Article> articles = articleRepository.findByAuthorName(author);
-        return getCollectionResponseEntity(articles);
-    }
-
-    @RequestMapping(value = "/published", method = RequestMethod.GET)
-    public ResponseEntity<Collection<ArticleResource>> findArticleInPeriod(@RequestParam("from") @DateTimeFormat(pattern = DATE_FORMAT) Date from, @RequestParam("to") @DateTimeFormat(pattern = DATE_FORMAT) Date to) {
-        List<Article> articles = articleRepository.findByPublishedOn(from, to);
+        List<Article> articles = articleRepository.filter(keyword, author, from, to);
         return getCollectionResponseEntity(articles);
     }
 

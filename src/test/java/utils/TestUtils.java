@@ -3,7 +3,6 @@ package utils;
 import com.snorlacs.newse.domain.Article;
 import com.snorlacs.newse.domain.Author;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -32,11 +31,11 @@ public class TestUtils {
         article.setShortDescription(originalArticle.getShortDescription() + "updated");
         article.setText(originalArticle.getText() + "updated");
 
-        List<String> updatedKeywords = new ArrayList<>(originalArticle.getKeywords());
+        List<String> updatedKeywords = new ArrayList<>();
         updatedKeywords.add("update");
         article.setKeywords(updatedKeywords);
         article.setPublishedOn(originalArticle.getPublishedOn());
-        List<Author> updateAuthors = new ArrayList<>(originalArticle.getAuthors());
+        List<Author> updateAuthors = new ArrayList<>();
         Author newAuthor = new Author();
         newAuthor.setName("test-author2");
         updateAuthors.add(newAuthor);

@@ -20,25 +20,31 @@ public class ArticleRepository extends NonPersistentRepository<Article> {
         originalArticle.setAuthors(updatedArticle.getAuthors());
     }
 
-    public List<Article> findByKeyword(String keyword) {
-        Predicate<Article> articlePredicate = article -> article.getKeywords().contains(keyword);
-        return findByField(articlePredicate);
+    public List<Article> filter(String keyword, String author, Date from, Date to) {
+
+        Predicate<Article> filterPredicate = keywordPredicate(keyword)
+                .and(authorPredicate(author))
+                .and(fromDatePredicate(from))
+                .and(toDatePredicate(to));
+
+        return findByPredicate(filterPredicate);
     }
 
-    public List<Article> findByAuthorName(String authorName) {
-        Predicate<Article> articlePredicate = article -> article.getAuthors()
+    private Predicate<Article> keywordPredicate(String keyword) {
+        return article -> keyword == null || article.getKeywords().contains(keyword);
+    }
+
+    private Predicate<Article> authorPredicate(String authorName) {
+        return article -> authorName == null || article.getAuthors()
                 .stream()
                 .anyMatch(author -> author.getName().equals(authorName));
-
-        return findByField(articlePredicate);
     }
 
-    public List<Article> findByPublishedOn(Date from, Date to) {
-        Predicate<Article> articlePredicate = article ->
-                (article.getPublishedOn().after(from) && article.getPublishedOn().before(to)) ||
-                (article.getPublishedOn().equals(from)) ||
-                (article.getPublishedOn().equals(to));
+    private Predicate<Article> fromDatePredicate(Date from) {
+        return article -> from == null || article.getPublishedOn().equals(from) || article.getPublishedOn().after(from);
+    }
 
-        return findByField(articlePredicate);
+    private Predicate<Article> toDatePredicate(Date to) {
+        return article -> to == null || article.getPublishedOn().equals(to) || article.getPublishedOn().before(to);
     }
 }
