@@ -63,6 +63,66 @@ public class ArticleControllerTest extends ApiIntegrationTest {
         Assert.assertEquals(1, articleRepository.getCount());
     }
 
+    @Test
+    public void createArticleWithEmptyPayloadReturnsBadRequest() throws Exception {
+        ResultActions resultActions = post("/article", "", authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createArticleWithNullPayloadReturnsBadRequest() throws Exception {
+        ResultActions resultActions = post("/article", "{}", authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createArticleWithNullHeaderReturnsBadRequest() throws Exception {
+        String payloadWithEmptyKeyword = "{\"shortDescription\":\"Test\",\"text\":\"This article is for testing\",\"publishedOn\":\"2018-02-24T15:20:50.567+0530\",\"authors\":[{\"name\":\"test-author\"}],\"keywords\":[\"test\"]}";
+        ResultActions resultActions = post("/article", payloadWithEmptyKeyword, authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createArticleWithNullTextReturnsBadRequest() throws Exception {
+        String payloadWithEmptyKeyword = "{\"header\":\"Test Article\",\"shortDescription\":\"Test\",\"publishedOn\":\"2018-02-24T15:20:50.567+0530\",\"authors\":[{\"name\":\"test-author\"}],\"keywords\":[\"test\"]}";
+        ResultActions resultActions = post("/article", payloadWithEmptyKeyword, authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createArticleWithNullShortDescriptionReturnsBadRequest() throws Exception {
+        String payloadWithEmptyKeyword = "{\"header\":\"Test Article\",\"text\":\"This article is for testing\",\"publishedOn\":\"2018-02-24T15:20:50.567+0530\",\"authors\":[{\"name\":\"test-author\"}],\"keywords\":[\"test\"]}";
+        ResultActions resultActions = post("/article", payloadWithEmptyKeyword, authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createArticleWithNullPublishedOnReturnsBadRequest() throws Exception {
+        String payloadWithEmptyKeyword = "{\"header\":\"Test Article\",\"shortDescription\":\"Test\",\"text\":\"This article is for testing\",\"authors\":[{\"name\":\"test-author\"}],\"keywords\":[\"test\"]}";
+        ResultActions resultActions = post("/article", payloadWithEmptyKeyword, authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createArticleWithNullAuthorNameReturnsBadRequest() throws Exception {
+        String payloadWithEmptyKeyword = "{\"header\":\"Test Article\",\"shortDescription\":\"Test\",\"text\":\"This article is for testing\",\"publishedOn\":\"2018-02-24T15:20:50.567+0530\",\"authors\":[{}],\"keywords\":[\"test\"]}";
+        ResultActions resultActions = post("/article", payloadWithEmptyKeyword, authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createArticleWithEmptyReturnsBadRequest() throws Exception {
+        String payloadWithEmptyKeyword = "{\"header\":\"Test Article\",\"shortDescription\":\"Test\",\"text\":\"This article is for testing\",\"publishedOn\":\"2018-02-24T15:20:50.567+0530\",\"keywords\":[\"test\"]}";
+        ResultActions resultActions = post("/article", payloadWithEmptyKeyword, authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createArticleWithEmptyKeywordBadRequest() throws Exception {
+        String payloadWithEmptyKeyword = "{\"header\":\"Test Article\",\"shortDescription\":\"Test\",\"text\":\"This article is for testing\",\"publishedOn\":\"2018-02-24T15:20:50.567+0530\",\"authors\":[{\"name\":\"test-author\"}]}";
+        ResultActions resultActions = post("/article", payloadWithEmptyKeyword, authorizationSecret);
+        resultActions.andExpect(status().isBadRequest());
+    }
 
     @Test
     public void testGetAnArticleGivesCorrectResponse() throws Exception {

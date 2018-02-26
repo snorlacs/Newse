@@ -2,7 +2,10 @@ package com.snorlacs.newse.domain;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -10,11 +13,18 @@ import java.util.List;
 public class Article implements Identifiable {
 
     private Long id;
+    @NotBlank(message = "header must not be blank")
     private String header;
+    @NotBlank(message = "short description must not be blank")
     private String shortDescription;
+    @NotBlank(message = "text cannot be blank")
     private String text;
+    @NotNull(message = "published On cannot be null")
     private Date publishedOn;
+    @NotNull
+    @Valid
     private List<Author> authors;
+    @NotNull
     private List<String> keywords;
 
 

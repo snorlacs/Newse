@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "/article", method = RequestMethod.POST, consumes = "application/json")
-    public ResponseEntity<ArticleResource> createArticle(@RequestBody Article article) {
+    public ResponseEntity<ArticleResource> createArticle(@RequestBody @Valid Article article) {
         Article createdArticle = articleRepository.create(article);
         return new ResponseEntity<>(articleResourceResolver.toResource(createdArticle), HttpStatus.CREATED);
     }
