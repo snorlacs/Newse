@@ -15,7 +15,7 @@ public class JsonDateSerializer extends JsonSerializer<Date> {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
     @Override
-    public void serialize(Date date, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
+    public void serialize(Date date, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         String formattedDate = dateFormat.format(date);
         jsonGenerator.writeString(formattedDate);
     }

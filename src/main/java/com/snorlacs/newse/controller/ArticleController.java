@@ -61,9 +61,8 @@ public class ArticleController {
         boolean updated = articleRepository.update(id, updatedArticle);
         if (updated) {
             return findArticleById(id);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/articles", method = RequestMethod.GET)
@@ -79,8 +78,7 @@ public class ArticleController {
     private ResponseEntity<Collection<ArticleResource>> getCollectionResponseEntity(List<Article> articles) {
         if (articles.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(articleResourceResolver.toResourceCollection(articles), HttpStatus.OK);
         }
+        return new ResponseEntity<>(articleResourceResolver.toResourceCollection(articles), HttpStatus.OK);
     }
 }

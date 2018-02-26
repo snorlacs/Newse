@@ -19,6 +19,8 @@ import static com.snorlacs.newse.configuration.AuthenticationEntryPoint.REALM_NA
 @PropertySource("classpath:application.properties")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private static final String EDITOR = "EDITOR";
+
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
 
@@ -34,19 +36,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/article").authenticated()
-                .antMatchers(HttpMethod.POST, "/article").hasRole("EDITOR")
-                .antMatchers(HttpMethod.PUT, "/article/*").hasRole("EDITOR")
-                .antMatchers(HttpMethod.DELETE, "/article/*").hasRole("EDITOR")
+                .antMatchers(HttpMethod.POST, "/article").hasRole(EDITOR)
+                .antMatchers(HttpMethod.PUT, "/article/*").hasRole(EDITOR)
+                .antMatchers(HttpMethod.DELETE, "/article/*").hasRole(EDITOR)
                 .antMatchers(HttpMethod.GET, "/article/*").permitAll()
+                .antMatchers(HttpMethod.GET, "/articles").permitAll()
                 .and().httpBasic().realmName(REALM_NAME).authenticationEntryPoint(authenticationEntryPoint)
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        ;
     }
 
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.inMemoryAuthentication().withUser(username).password(password).roles("EDITOR");
+        authenticationManagerBuilder.inMemoryAuthentication().withUser(username).password(password).roles(EDITOR);
     }
 }
 
