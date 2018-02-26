@@ -19,6 +19,17 @@ The following are the rest endpoints:
 | `PUT` | `http://localhost:8080/article/{id}` | Updates an existing article with the data contained in the request body | <ul><li>`200 OK` if article successfully updated</li><li>`404 Not Found` if article does not exist</li><li>`401 Unauthorized` If it is not editor</li></ul> |
 | `DELETE` | `http://localhost:8080/article/{id}` | Deletes an existing article that corresponds to the supplied article ID | <ul><li>`204 No Content` if article successfully deleted</li><li>`404 Not Found` if article does not exist</li><li>`401 Unauthorized` If it is not editor</li></ul> |
 
+  ## Request Body for POST api
+    {
+       "header" : "Header for the article",
+       "short-description": "A short description of the article",
+       "text": "The content of the article",
+       "publishedOn": "Publish date of the article, format yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+       "authors": "List of authors of the article Eg: [{name:"author1"},{name: "author2"}]"
+       "keywords": "List of keywords for article Eg: ["keyword1", "keywords2"]"
+    }
+  Constraint: None of the above fields can be empty, all are mandatory     
+   
 ## Some more Gradle commands
     
     To build the application
